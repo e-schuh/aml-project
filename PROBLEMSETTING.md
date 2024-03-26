@@ -44,7 +44,7 @@ With this notation, the RL problem is formulated as follows. The environment has
 
 3. Comparison of debiased SwissBERT to the original model.
 
-Finaly, we will evaluate the debiased model using the StereoSet framework, as described in 1). We will compute the to evaluate effectiveness of the bias mitigation procedure, while the lms let us control for deterioration in the language capabilities of the model.
+We will evaluate the debiased model using the StereoSet framework, as described in 1). We will compute the to evaluate effectiveness of the bias mitigation procedure, while the lms let us control for deterioration in the language capabilities of the model.
 
 4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
 
