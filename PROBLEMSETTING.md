@@ -4,7 +4,7 @@
 Elias Schuhmacher (<eliassebastian.schuhmacher@uzh.ch>), Marco Caporaletti (<marco.caporaletti@econ.uzh.ch>), Katja Hager (<katja.hager@econ.uzh.ch>)
 
 **Motivation**
-Due to their unsupervised pre-training task large language models (LLM) possibly learn from their training corpus significant biases in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply de-biasing strategies to reduce the implied biases in these models. We focus on NLP-related text-based applications of LLMs.
+Due to their unsupervised pre-training task, large language models (LLM) possibly learn from their training corpus significant biases in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply debiasing strategies to reduce the implied biases in these models. We focus on NLP-related text-based applications of LLMs.
 
 **Problem setting and solution approach**
 
