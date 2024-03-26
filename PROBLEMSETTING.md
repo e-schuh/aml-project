@@ -28,7 +28,7 @@ where _π_ denotes the model, and P<sub>π</sub> is the empirical probability on
 
 We will follow the debiasing procedure outlined in [Refine-LM](https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf). There, the pre-trained model is augmented with a fully connected neural layer (henceforth called the debiasing layer), which is trained using reinforcement learning (RL).
 
-The training is based on a MLM task introduced in [unQover](https://arxiv.org/abs/2010.02428), analogous to the intra-sentence CAT described above. More precisely, let _(x<sub>1</sub>, x<sub>2</sub> ) ∈  X<sub>1</sub>×X<sub>2</sub>_ be a pair of subjects belonging to different categories _X<sub>1</sub>, X<sub>2</sub>_, a context from a set of contexts _C_, and an attribute from a set of attributes _A_, usually carrying a stereotype for one of the categories. We define a question
+The training is based on a MLM task introduced in [unQover](https://arxiv.org/abs/2010.02428), analogous to the intra-sentence CAT described above. More precisely, let _(x<sub>1</sub>, x<sub>2</sub> ) ∈  X<sub>1</sub>×X<sub>2</sub>_ be a pair of subjects belonging to different categories _X<sub>1</sub>, X<sub>2</sub>_, a context from a set of contexts _C_, and _a_ an attribute from a set of attributes _A_, usually carrying a stereotype for one of the categories. We define a question
 
 τ<sup>c</sup><sub>i, j</sub>(a) = [x<sub>i</sub>] c [x<sub>j</sub>]. `<mask>` [a],
 
