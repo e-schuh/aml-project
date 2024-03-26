@@ -11,7 +11,7 @@ Due to their unsupervised pre-training task, large language models (LLM) possibl
 
 Our problem setting consists of the following four steps.
 
-1. Evaluation of stereotypical bias in the SwissBERT model.
+Step 1. Evaluation of stereotypical bias in the SwissBERT model.
 [SwissBERT](https://arxiv.org/abs/2303.13310) is a recently released transformer-based Masked Language Model (MLM), that is specialized in handling text related to Switzerland. Similarly to other LLMs that are trained on large web corpora, SwissBERT is likely to have learned stereotypical associations and biases present in its training corpus.
 To quantify this, we will adopt the framework introduced in [StereoSet](https://arxiv.org/pdf/2004.09456.pdf), which is based on _intra-sentence_ and _inter-sentence Context Association Tests (CATs)_ to measure bias and language-modelling ability at the sentence and discourse level respectively.
 
@@ -25,7 +25,7 @@ An unbiased, but competent model should always prefer meaningful to meaningless 
 
 where _π_ denotes the model, and P<sub>π</sub> is the empirical probability on the evaluation dataset. In other words, _lms_ is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and the _ss_ the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one.
 
-2. Mitigation of stereotypical bias in the SwissBERT model.
+Step 2. Mitigation of stereotypical bias in the SwissBERT model.
 
 We will follow the debiasing procedure outlined in [Refine-LM](https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf). There, the pre-trained model is augmented with a fully connected neural layer (henceforth called the debiasing layer), which is trained using reinforcement learning (RL).
 
@@ -44,12 +44,12 @@ C(τ<sup>c</sup>(a)) = <sup>1</sup>/<sub>2</sub>B(x<sub>1</sub> / x<sub>2</sub>,
 
 With this notation, the RL problem is formulated as follows. The environment has a single state, and given a template τ<sup>c</sup>(a), the action set _M_ consists of the possible choices of subjects (x<sub>1</sub>, x<sub>2</sub>). The policy _π<sub>θ</sub>_ is given by the pre-trained model augmented with the debiasing layer, and it determines the action as the subject pair maximising _π<sub>θ</sub>_ when plugged into the template. Finally, the reward of an action _a ∈ M_ is given by _r(a) =_ -|_C(τ<sup>c</sup>(a))_|. The policy is optimized in the parameters θ of the debiasing layer, while the parameters of the pretrained model are kept frozen.
 
-3. Comparison of debiased SwissBERT to the original model.
+Step 3. Comparison of debiased SwissBERT to the original model.
 
 We will evaluate the de-biased model using the StereoSet framework, as described in 1). We will compute the _ss_ score to evaluate effectiveness of the bias mitigation procedure, while the _lms_ score indicates possible deterioration in the language capabilities of the model.
 
 
-4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
+Step 4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
 
 The approach outlined in 1) - 3) relies on the multilingual structure of SwissBERT. Indeed, we plan to evaluate bias (steps 1) and 3)) on a German translation of the StereoSet dataset, available in [Öztürk et al. (2023)](https://arxiv.org/abs/2307.07331). On the other hand, the debiasing procedure described in 2) relies on the English-only UnQover dataset. We expect this to be possible thanks to the modular, adapter-based architecture of SwissBERT: we will switch on and off the relevant language adapters in the model depending on the language of the evaluation (resp. training) dataset.
 
@@ -62,7 +62,7 @@ with the _lms_ and _ss_ scores defined in our problem setting above. This is a n
 
 **Model Type**
 
-Large Language Model: SwissBert, a multilingual language model for Switzerland, its base model X-MOD and the SOTA model BERT.
+Large Language Model: SwissBERT, a multilingual language model for Switzerland, its base model X-MOD and the SOTA model BERT.
 
 **Comparison of the results against a machine learning baseline**
 
@@ -74,18 +74,17 @@ We will compute the bias metrics for the SwissBERT and the BERT model, a SOTA LL
 The de-biasing approach as outlined in this proposal is based on the concept of reinforcement learning. However, this might not be the most efficient approach to de-bias a model. It might be sufficient to simply ask the model not to be biased by prepending the input sentence with a task description (zero-shot self-debiasing via Reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from Reprompting.
 
 
-In our case, one could formulate the Repromt as “This is a test. You can choose from a stereotypical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We use this simple de-biasing strategy of Repromptimg as baseline for the task. We then evaluate the reprompted SwissBert model and compare its performance to the de-biased SwissBert model with an additional layer from reinforcement learning.
+In our case, one could formulate the Repromt as “This is a test. You can choose from a stereotypical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We use this simple de-biasing strategy of Repromptimg as baseline for the task. We then evaluate the reprompted SwissBERT model and compare its performance to the de-biased SwissBERT model with an additional layer from reinforcement learning.
 
-As a baseline for interpreting the _iCAT_ evaluation scores, there are two theoretical benchmarks. iCAT assumes an idealized scenario where language models always choose the meaningful option (ideal model: lms=100). Another baseline is a random model, which randomly chooses between the options and is thus lowest in stereotypical bias (ss = 50), but worst in terms of language modeling (lms = 50). In addition to the theoretical baselines, we will evaluate the original, not yet de-biased SwissBert model as well as the general Bert model to get a score. We then compare these baseline scores to the de-biased SwissBert model with reinforcement learning and the model with an extended prompt.
+As a baseline for interpreting the _iCAT_ evaluation scores, there are two theoretical benchmarks. iCAT assumes an idealized scenario where language models always choose the meaningful option (ideal model: lms=100). Another baseline is a random model, which randomly chooses between the options and is thus lowest in stereotypical bias (_ss_ = 50), but worst in terms of language modeling (_lms_ = 50). In addition to the theoretical baselines, we will evaluate the original, not yet de-biased SwissBERT model as well as the general BERT model to get a score. We then compare these baseline scores to the de-biased SwissBERT model with reinforcement learning and the model with an extended prompt.
 
 **Fine-Tuning**
 
-We won’t fine-tune a complete LLM, but rather add an additional debiasing layer on top of a pretrained model, and exclusively train this layer.
+We won’t fine-tune the base LLM, but rather add an additional debiasing layer on top of the pre-trained model, and exclusively train this layer.
 
 **Model Architecture**
 
-- BERT-based model (LLM)
-- De-Biasing module/strategy with Reinforcement Learning <https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf>
-- <https://anonymous.4open.science/r/refine-lm-naacl/Readme.md>
+- SwissBERT (X-MOD based LLM)
+- De-biasing module/strategy with reinforcement learning <https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf> (and its [code base](https://anonymous.4open.science/r/refine-lm-naacl/Readme.md))
 
 
