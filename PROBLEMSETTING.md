@@ -4,7 +4,8 @@
 Elias Schuhmacher (<eliassebastian.schuhmacher@uzh.ch>), Marco Caporaletti (<marco.caporaletti@econ.uzh.ch>), Katja Hager (<katja.hager@econ.uzh.ch>)
 
 **Motivation**
-Due to their unsupervised pre-training task large language models (LLM) possibly learn significant biases encoded in their training corpus in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply de-biasing strategies to reduce the implied biases in these models. We focus on NLP-related text-based applications of LLMs.
+Due to their unsupervised pre-training task, large language models (LLM) possibly learn significant biases encoded in their training corpus in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply de-biasing strategies to reduce the implied biases in these models. We focus on NLP-related text-based applications of LLMs.
+
 
 **Problem setting and solution approach**
 
@@ -28,11 +29,12 @@ where _π_ denotes the model, and P<sub>π</sub> is the empirical probability on
 
 We will follow the debiasing procedure outlined in [Refine-LM](https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf). There, the pre-trained model is augmented with a fully connected neural layer (henceforth called the debiasing layer), which is trained using reinforcement learning (RL).
 
-The training is based on an MLM task introduced in [unQover](https://arxiv.org/abs/2010.02428), analogous to the intra-sentence CAT described above. More precisely, let _(x<sub>1</sub>, x<sub>2</sub> ) ∈  X<sub>1</sub>×X<sub>2</sub>_ be a pair of subjects belonging to different categories _X<sub>1</sub>, X<sub>2</sub>_, a context from a set of contexts _C_, and an attribute from a set of attributes _A_, usually carrying a stereotype for one of the categories. We define a question
+
+The training is based on an MLM task introduced in [unQover](https://arxiv.org/abs/2010.02428), analogous to the intra-sentence CAT described above. More precisely, let _(x<sub>1</sub>, x<sub>2</sub> ) ∈  X<sub>1</sub>×X<sub>2</sub>_ be a pair of subjects belonging to different categories _X<sub>1</sub>, X<sub>2</sub>_, a context from a set of contexts _C_, and _a_ an attribute from a set of attributes _A_, usually carrying a stereotype for one of the categories. We define a question
 
 τ<sup>c</sup><sub>i, j</sub>(a) = [x<sub>i</sub>] c [x<sub>j</sub>]. `<mask>` [a],
 
-and a template τ<sup>c</sup>(a) = (τ<sup>c</sup><sub>1, 2</sub>(a) , τ<sup>c</sup><sub>2, 1</sub>(a) ). Denoting by P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>) the probability of completing question τ<sup>c</sup><sub>i, j</sub> with subject x<sub>i</sub> , and by the negation of attribute ~a, the _subject-attribute bias_ towards subject _i_ is defined as
+and a template τ<sup>c</sup>(a) = (τ<sup>c</sup><sub>1, 2</sub>(a) , τ<sup>c</sup><sub>2, 1</sub>(a) ). Denoting by P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>) the probability of completing question τ<sup>c</sup><sub>i, j</sub> with subject x<sub>i</sub> , and by ~a the negation of attribute a, the _subject-attribute bias_ towards subject _i_ is defined as
 
 B(x<sub> i </sub> / x<sub> j </sub>, τ<sup>c</sup> (a)) = <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>(a)) + <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>j, i</sub>(a)) - <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>(~a)) - <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>j, i </sub>(~a)) ,
 
@@ -44,7 +46,8 @@ With this notation, the RL problem is formulated as follows. The environment has
 
 3. Comparison of debiased SwissBERT to the original model.
 
-Finally, we will evaluate the de-biased model using the StereoSet framework, as described in 1). We will compute the _ss_ to evaluate effectiveness of the bias mitigation procedure, while the _lms_ indicates possible deterioration in the language capabilities of the model.
+We will evaluate the de-biased model using the StereoSet framework, as described in 1). We will compute the _ss_ to evaluate effectiveness of the bias mitigation procedure, while the _lms_ indicates possible deterioration in the language capabilities of the model.
+
 
 4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
 
