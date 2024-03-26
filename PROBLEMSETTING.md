@@ -22,7 +22,7 @@ An unbiased, but competent model should always prefer meaningful to meaningless 
 -  A language modeling score _lms = 100 x P<sub>π</sub>(meaningful > meaningless)_
 -  A stereotype score _ss = 100 x P<sub>π</sub>(stereotypical > antistereotypical)_
 
-where denotes the model, and is the empirical probability on the evaluation dataset. In other words, the is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and the the percentage of examples where the model ranks the stereotypical association higher than the antistereotypical one.
+where _π_ denotes the model, and P<sub>π</sub> is the empirical probability on the evaluation dataset. In other words, _lms_ is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and the _ss_ the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one.
 
 2. Mitigation of stereotypical bias in the SwissBERT model.
 
@@ -53,14 +53,9 @@ The approach outlined in 1) - 3) relies on the multilingual structure of SwissBE
 Therefore, we will be able to qualitatively assess transfer learning across languages in SwissBERT, in the context of bias reduction.
 
 **Evaluation Protocol**
-
-We evaluate the models on a German version of Stereo Set, a dataset containing different types of biases (<https://aclanthology.org/2021.acl-long.416.pdf>). For training and evaluating, different datasets are used so we don’t split the data. StereoSet contains the following metrics to evaluate the models: a _Language Modeling Score, Stereotype Score_ and _Idealized CAT Score_ <https://arxiv.org/pdf/2004.09456.pdf>_._
-
-The Idealized CAT Score (iCAT) is the main metric. _iCat_ is a probability-based metric within the group of Pseudo-log-likelihood (PLL). PLL compares the likelihoods between sentences <https://arxiv.org/pdf/2312.01509.pdf>.
-
-- _Language Modeling Score (lms)_: “In the language modeling case, given a target term context and two possible associations of the context, one meaningful and the other meaningless, the model has to rank the meaningful association higher than meaningless association. The meaningful association corresponds to either the stereotype or the anti-stereotype option.”
-- _Stereotype Score (ss)_: “Similarly, we define the stereotype score (ss) of a target term as the percentage of examples in which a model prefers a stereotypical association over an anti-stereotypical association. We define the overall ss of a dataset as the average ss of the target terms in the dataset. The ss of an ideal language model is 50, for every target term, the model prefers neither stereotypical associations nor anti-stereotypical associations.”
-- _Idealized CAT Score (icat)_: “StereoSet motivates a question around how practitioners should prefer models for real-world deployment. Just because a model has low stereotypical bias does not mean it is preferred over others. For example, although a random language model exhibits the lowest stereotypical bias (ss = 50) it is the worst language model (lms = 50). While model selection desiderata is often task-specific, we introduce a simple point-estimate called the idealized CAT (icat) score for model comparison assuming equal importance to language modeling ability and stereotypical bias. We define the icat score as _lms * <sup>min(ss, 100-ss)</sup> / <sub>50</sub>
+Our main evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In this context, our main performance metric will be the  Idealized CAT Score:
+_iCAT = lms * <sup>min(ss, 100-ss)</sup> / <sub>50</sub>_, 
+with the lms and ss scores defined in our problem setting above. This is a number between 0 and 100 capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
 
 **Model Type**
 
@@ -68,7 +63,7 @@ Large Language Model: SwissBert, a multilingual language model for Switzerland, 
 
 **Comparison of the results against a machine learning baseline**
 
-We compute the bias metrics for the SwissBert and the Bert model, a SOTA LLM, without de-biasing modules. We expect SwissBert and Bert to have similar scores, especially regarding the language modeling score, since our evaluation dataset StereoSet is not Switzerland-specific. The unaltered models are a baseline to compare the score of the adjusted SwissBert model after adding a debiasing adapter.
+We will compute the bias metrics for the SwissBERT and the BERT model, a SOTA LLM, without de-biasing modules. We expect SwissBERT and BERT to have similar scores, especially regarding the language modeling score, since our evaluation dataset StereoSet is not Switzerland-specific. The unaltered models are a baseline to compare the score of the adjusted SwissBERT model after adding a debiasing adapter. 
 
 **Statistical method or a “simple” machine learning model as a baseline**
 
