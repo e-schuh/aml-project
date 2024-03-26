@@ -88,7 +88,7 @@ In summary, we compare the following models:
 
 **Fine-Tuning**
 
-We won’t fine-tune the base LLM, but rather add an additional debiasing layer on top of the pre-trained model, and exclusively train this layer.
+Our approach does not include fine-tuning of the base LLM. Rather, we add an additional debiasing layer on top of the pre-trained model, and exclusively train this layer.
 
 **Model Architecture**
 
