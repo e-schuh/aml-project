@@ -46,7 +46,7 @@ With this notation, the RL problem is formulated as follows. The environment has
 
 3. Comparison of debiased SwissBERT to the original model.
 
-We will evaluate the de-biased model using the StereoSet framework, as described in 1). We will compute the _ss_ to evaluate effectiveness of the bias mitigation procedure, while the _lms_ indicates possible deterioration in the language capabilities of the model.
+We will evaluate the de-biased model using the StereoSet framework, as described in 1). We will compute the _ss_ score to evaluate effectiveness of the bias mitigation procedure, while the _lms_ score indicates possible deterioration in the language capabilities of the model.
 
 
 4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
@@ -70,7 +70,9 @@ We will compute the bias metrics for the SwissBERT and the BERT model, a SOTA LL
 
 **Statistical method or a “simple” machine learning model as a baseline**
 
+
 The de-biasing approach as outlined in this proposal is based on the concept of reinforcement learning. However, this might not be the most efficient approach to de-bias a model. It might be sufficient to simply ask the model not to be biased by prepending the input sentence with a task description (zero-shot self-debiasing via Reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from Reprompting.
+
 
 In our case, one could formulate the Repromt as “This is a test. You can choose from a stereotypical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We use this simple de-biasing strategy of Repromptimg as baseline for the task. We then evaluate the reprompted SwissBert model and compare its performance to the de-biased SwissBert model with an additional layer from reinforcement learning.
 
@@ -78,7 +80,7 @@ As a baseline for interpreting the _iCAT_ evaluation scores, there are two theor
 
 **Fine-Tuning**
 
-We don’t fine-tune a model but add an additional de-biasing layer on top of a pretrained model.
+We won’t fine-tune a complete LLM, but rather add an additional debiasing layer on top of a pretrained model, and exclusively train this layer.
 
 **Model Architecture**
 
