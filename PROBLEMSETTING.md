@@ -44,7 +44,7 @@ With this notation, the RL problem is formulated as follows. The environment has
 
 3. Comparison of debiased SwissBERT to the original model.
 
-We will evaluate the debiased model using the StereoSet framework, as described in 1). We will compute the to evaluate effectiveness of the bias mitigation procedure, while the lms let us control for deterioration in the language capabilities of the model.
+We will evaluate the debiased model using the StereoSet framework, as described in 1). We will compute the _ss_ score to evaluate effectiveness of the bias mitigation procedure, while the _lms_ lets us control for deterioration in the language capabilities of the model.
 
 4. Qualitative evaluation of transfer learning across languages in the SwissBERT model.
 
@@ -55,7 +55,7 @@ Therefore, we will be able to qualitatively assess transfer learning across lang
 **Evaluation Protocol**
 Our main evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In this context, our main performance metric will be the  Idealized CAT Score:
 _iCAT = lms * <sup>min(ss, 100-ss)</sup> / <sub>50</sub>_, 
-with the lms and ss scores defined in our problem setting above. This is a number between 0 and 100 capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
+with the _lms_ and _ss_ scores defined in our problem setting above. This is a number between 0 and 100 capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
 
 **Model Type**
 
@@ -67,7 +67,7 @@ We will compute the bias metrics for the SwissBERT and the BERT model, a SOTA LL
 
 **Statistical method or a “simple” machine learning model as a baseline**
 
-The de-biasing approach as outlined in this proposal is based on the concept of reinforcement learning. However, this might not be the most efficient approach to de-bias a model. It might be sufficient to simply ask the model not to be biased by extending the input sentence with a task description (zero-shot self-debiasing via Reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from Reprompting.
+The debiasing approach as outlined in this proposal is based on the concept of reinforcement learning. However, this might not be the most efficient approach to debias a model. It might be sufficient to simply ask the model not to be biased by extending the input sentence with a task description (zero-shot self-debiasing via Reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from Reprompting.
 
 In our case, one could formulate the Repromt as “This is a test. You can choose from a stereo-typical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We use this simple de-biasing strategy of Repromptimg as baseline for the task. We then evaluate the reprompted SwissBert model and compare its performance to the de-biased SwissBert model with an additional layer from reinforcement learning.
 
@@ -75,7 +75,7 @@ As a baseline for interpreting the _iCAT_ evaluation scores, there are two theor
 
 **Fine-Tuning**
 
-We don’t fine-tune a model but add an additional de-biasing layer on top of a pretrained model.
+We won’t fine-tune a complete LLM, but rather add an additional debiasing layer on top of a pretrained model, and exclusively train this layer.
 
 **Model Architecture**
 
