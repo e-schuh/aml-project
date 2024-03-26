@@ -32,7 +32,7 @@ The training is based on a MLM task introduced in [unQover](https://arxiv.org/ab
 
 τ<sup>c</sup><sub>i, j</sub>(a) = [x<sub>i</sub>] c [x<sub>j</sub>]. `<mask>` [a],
 
-and a template τ<sup>c</sup>(a) = (τ<sup>c</sup><sub>1, 2</sub>(a) , τ<sup>c</sup><sub>2, 1</sub>(a) ). Denoting by P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>) the probability of completing question τ<sup>c</sup><sub>i, j</sub> with subject x<sub>i</sub> , and by the negation of attribute ~a, the _subject-attribute bias_ towards subject _i_ is defined as
+and a template τ<sup>c</sup>(a) = (τ<sup>c</sup><sub>1, 2</sub>(a) , τ<sup>c</sup><sub>2, 1</sub>(a) ). Denoting by P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>) the probability of completing question τ<sup>c</sup><sub>i, j</sub> with subject x<sub>i</sub> , and by ~a the negation of attribute a, the _subject-attribute bias_ towards subject _i_ is defined as
 
 B(x<sub> i </sub> / x<sub> j </sub>, τ<sup>c</sup> (a)) = <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>(a)) + <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>j, i</sub>(a)) - <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>i, j</sub>(~a)) - <sup>1</sup>/<sub>2</sub>P(x<sub>i</sub> / τ<sup>c</sup><sub>j, i </sub>(~a)) ,
 
