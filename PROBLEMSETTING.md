@@ -93,6 +93,6 @@ We won’t fine-tune the base LLM, but rather add an additional debiasing layer 
 **Model Architecture**
 
 - SwissBERT (X-MOD based LLM)
-- De-biasing module/strategy with reinforcement learning <https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf> (and its [code base](https://anonymous.4open.science/r/refine-lm-naacl/Readme.md))
+- [De-biasing module/strategy with reinforcement learning](https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf) (and its [code base](https://anonymous.4open.science/r/refine-lm-naacl/Readme.md))
 
 
