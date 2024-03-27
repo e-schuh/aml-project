@@ -11,8 +11,8 @@ Due to their unsupervised pre-training task, large language models (LLM) possibl
 
 ### Evaluation Protocol
 How to quantify the bias of a model? Our main evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach. With their labelled dataset, we can count how many times the model chooses a stereotypical, anti-stereotypical or meaningless option. The comination between language model capability and stereotypical bias is embedded in our main performance metric, the Idealized CAT Score:
-_iCAT = lms * <sup>min(ss, 100-ss)</sup> / <sub>50</sub>_, 
-with the _lms_ and _ss_ scores properly defined below. In short,  _lms_ is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and _ss_ is the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one. _iCAT_ is a number between 0 and 100, capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
+$$iCAT ~ \colon = lms \times \frac {\min (ss, 100-ss)} { 50 }$$, 
+with the $lms and $ss scores properly defined below. In short,  $lms is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and $ss is the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one. $iCAT is a number between 0 and 100, capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
 
 
 
