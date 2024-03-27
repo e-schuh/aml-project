@@ -66,7 +66,7 @@ The approach outlined in 1) - 3) relies on the multilingual structure of SwissBE
 Therefore, we will be able to qualitatively assess transfer learning across languages in SwissBERT, in the context of bias reduction.
 
 ### Evaluation Protocol
-Our main evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In this context, our main performance metric will be the  Idealized CAT Score:
+Our evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In this context, our main performance metric will be the  Idealized CAT Score:
 
 $$iCAT ~ \colon = lms \times \frac {\min (ss, 100-ss)} { 50 }$$
 
