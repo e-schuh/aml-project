@@ -3,16 +3,8 @@
 ### Team members
 Elias Schuhmacher (<eliassebastian.schuhmacher@uzh.ch>), Marco Caporaletti (<marco.caporaletti@econ.uzh.ch>), Katja Hager (<katja.hager@econ.uzh.ch>)
 
-### Motivation
-Due to their unsupervised pre-training task, large language models (LLM) possibly learn significant biases encoded in their training corpus in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply de-biasing strategies to reduce the implied biases in these models. We will perform the de-biasing on the [SwissBERT](https://arxiv.org/abs/2303.13310) model. Hence, the goal of our project is to make SwissBERT less biased without compromising its language-modeling capabilities.
-
-### Model
-[SwissBERT](https://arxiv.org/abs/2303.13310) is a recently released transformer-based Masked Language Model (MLM), that is specialized in handling text related to Switzerland. Similarly to other LLMs that are trained on large web corpora, SwissBERT is likely to have learned stereotypical associations and biases present in its training corpus. 
-
-### Evaluation Protocol
-How to quantify the bias of a model? Our main evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach. With their labelled dataset, we can count how many times the model chooses a stereotypical, anti-stereotypical or meaningless option. The comination between language model capability and stereotypical bias is embedded in our main performance metric, the Idealized CAT Score. In short, it combines the percentage of examples where the model ranks the meaningful association higher than the meaningless one (langauge modeling), and the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one. iCAT is a number between 0 and 100, capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
-
-
+### Motivation and goal of the project
+Due to their unsupervised pre-training task, large language models (LLM) possibly learn significant biases encoded in their training corpus in the context of race, gender, religion, or socioeconomic status. Motivated by the widespread usage of such models, we want to 1) investigate the extent to which current SOTA LLMs contain such biases, and 2) apply de-biasing strategies to reduce the implied biases in these models. We will perform the de-biasing on the [SwissBERT](https://arxiv.org/abs/2303.13310) model, a recently released transformer-based Masked Language Model (MLM) that is specialized in handling text related to Switzerland. Hence, the goal of our project is to make SwissBERT less biased without compromising its language-modeling capabilities.
 
 ### Problem setting and solution approach
 
@@ -30,8 +22,6 @@ An unbiased, but competent model should always prefer meaningful to meaningless 
 -  A stereotype score $ss = 100 \times P_\pi (stereotypical > antistereotypical)$
 
 where $\pi$ denotes the model, and $P_\pi$ is the empirical probability on the evaluation dataset. In other words, $lms$ is the percentage of examples where the model ranks the meaningful association higher than the meaningless one, and $ss$ is the percentage of examples where the model ranks the stereotypical association higher than the anti-stereotypical one.
-
-The Idealized CAT Score combines these metrics: $$iCAT ~ \colon = lms \times \frac {\min (ss, 100-ss)} { 50 }$$
 
 #### Step 2. Mitigation of stereotypical bias in the SwissBERT model.
 
@@ -66,11 +56,11 @@ The approach outlined in 1) - 3) relies on the multilingual structure of SwissBE
 Therefore, we will be able to qualitatively assess transfer learning across languages in SwissBERT, in the context of bias reduction.
 
 ### Evaluation Protocol
-Our evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In this context, our main performance metric will be the  Idealized CAT Score:
+Our evaluation protocol follows the [StereoSet](<https://aclanthology.org/2021.acl-long.416.pdf>) approach described above. In addition to the $lms$ and $ss$ scores defined above, our main performance metric will be the Idealized CAT Score:
 
-$$iCAT ~ \colon = lms \times \frac {\min (ss, 100-ss)} { 50 }$$
+$$iCAT ~ \colon = lms \times \frac {\min (ss, 100-ss)} { 50 }.$$
 
-with the $lms$ and $ss$ scores defined in our problem setting above. This is a number between 0 and 100 capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
+This is a number between 0 and 100 capturing a combination of stereotypical bias and language modeling capability (the higher, the better).
 
 ### Model Type
 
