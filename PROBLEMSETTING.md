@@ -100,11 +100,11 @@ Our approach does not include fine-tuning of the base LLM. Rather, we add an add
 - SwissBERT (X-MOD based LLM)
 - [De-biasing module/strategy with reinforcement learning](https://inria.hal.science/hal-04426115/file/NAACL_2023_Refine_LM%20%281%29.pdf) (and its [code base](https://anonymous.4open.science/r/refine-lm-naacl/Readme.md))
 
-### Optional
-It might be interesting to evaluate a SwissBERT model with an extended prompt as well as the general BERT model.
+### Optional 
+If time permits, we would like to pursue the following two extensions of our analysis:
 
-- Another baseline approach: The de-biasing approach as outlined in this proposal is based on the concept of reinforcement learning. However, this might not be the most efficient approach to de-bias a model. It might be sufficient to simply ask the model not to be biased by prepending the input sentence with a task description (zero-shot self-debiasing via Reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from Reprompting. In our case, one could formulate the Reprompt as “This is a test. You can choose from a stereotypical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We use this simple de-biasing strategy of Repromptimg as baseline for the task. We then evaluate the reprompted SwissBERT model and compare its performance to the de-biased SwissBERT model with the additional debiasing layer as described above.
+- _Alternative de-biasing approach._ The RL-based procedure outlined above might not be the most efficient approach to de-bias a model. It might be sufficient to simply "ask" the model not to be biased by prepending the input sentence with a task description (zero-shot self-debiasing via reprompting). Indeed, [Gallegos et al. (2024)](https://arxiv.org/pdf/2402.01981v1.pdf) find significant bias reductions from reprompting. In our case, one could formulate the prompt as “This is a test. You can choose from a stereotypical and an anti-stereotypical option. We ask you to not be biased. _Input sentence_.” and add it in front of the input sentence. We plan to use this simpler, prompt-based de-biasing strategy as a baseline for the de-biasing task. We will thus evaluate the reprompted SwissBERT model and compare its performance to the de-biased SwissBERT model with the additional debiasing layer as described above.
 
-- Another baseline model: Optionally, we can evaluate the BERT model on the StereoSet, get the performance score and compare it to SwissBERT (after and before debiasing). We expect SwissBERT and BERT to have similar scores, especially regarding the language modeling score, since our evaluation dataset StereoSet is not Switzerland-specific.
+- _Additional baseline model._ Optionally, we could evaluate the BERT model on the StereoSet, get the performance score and compare it to SwissBERT (after and before debiasing). We expect SwissBERT and BERT to have similar scores, especially regarding the language modeling score, since our evaluation dataset StereoSet is not Switzerland-specific.
 
 
