@@ -128,6 +128,8 @@ def main(args):
 
     os.makedirs(output_dir, exist_ok=True)
 
+    combined_results = {}
+
     if not args.skip_intrasentence:
         intrasentence_runner = IntrasentenceInferenceRunner(intrasentence_model,
                                                             tokenizer,
@@ -136,6 +138,7 @@ def main(args):
                                                             args.batch_size,
                                                             args.tiny_eval_frac)
         intrasentence_results = intrasentence_runner.run()
+        combined_results["intrasentence"] = intrasentence_results
         lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
         with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
             json.dump(intrasentence_results, f, indent=2)
@@ -148,9 +151,15 @@ def main(args):
                                                             args.batch_size,
                                                             args.tiny_eval_frac)
         intersentence_results = intersentence_runner.run()
-        with open(os.path.join(output_dir, "intersentence.json"), "w") as f:
+        combined_results["intersentence"] = intersentence_results
+        lang = intersentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+        with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
             json.dump(intersentence_results, f, indent=2)
     
+    with open(os.path.join(output_dir, f'combined_results{"_" + args.intrasentence_model if not args.skip_intrasentence else ""}{"_" + args.intersentence_model if not args.skip_intersentence else ""}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
+        json.dump(combined_results, f, indent=2)
+
+
     logger.info("############# FINISHED #############")
 
 

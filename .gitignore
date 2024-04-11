@@ -319,5 +319,6 @@ pyrightconfig.json
 # Custom folders
 logs
 inference_output
+evaluation_output
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,pycharm
