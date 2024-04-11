@@ -121,16 +121,16 @@ def main(args):
     else:
         output_dir = args.output_dir
     
-    
-    intrasentence_model = getattr(models, args.intrasentence_model)(args.ckpt_path or args.pretrained_model_name)
-    intersentence_model = getattr(models, args.intersentence_model)(args.ckpt_path or args.pretrained_model_name)
-    tokenizer = transformers.AutoTokenizer.from_pretrained(args.pretrained_model_name, use_fast=True)
 
     os.makedirs(output_dir, exist_ok=True)
 
     combined_results = {}
 
+    tokenizer = transformers.AutoTokenizer.from_pretrained(args.pretrained_model_name, use_fast=True)
+
     if not args.skip_intrasentence:
+        lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+        intrasentence_model = getattr(models, args.intrasentence_model)(args.ckpt_path or args.pretrained_model_name, lang)
         intrasentence_runner = IntrasentenceInferenceRunner(intrasentence_model,
                                                             tokenizer,
                                                             intrasentence_data_path,
@@ -139,11 +139,13 @@ def main(args):
                                                             args.tiny_eval_frac)
         intrasentence_results = intrasentence_runner.run()
         combined_results["intrasentence"] = intrasentence_results
-        lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+        
         with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
             json.dump(intrasentence_results, f, indent=2)
         
     if not args.skip_intersentence:
+        lang = intersentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+        intersentence_model = getattr(models, args.intersentence_model)(args.ckpt_path or args.pretrained_model_name, lang)
         intersentence_runner = IntersentenceInferenceRunner(intersentence_model,
                                                             tokenizer,
                                                             intersentence_data_path,
@@ -152,7 +154,7 @@ def main(args):
                                                             args.tiny_eval_frac)
         intersentence_results = intersentence_runner.run()
         combined_results["intersentence"] = intersentence_results
-        lang = intersentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+
         with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
             json.dump(intersentence_results, f, indent=2)
     
