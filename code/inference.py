@@ -50,7 +50,7 @@ def parse_args():
         "--ckpt-path",
         type=str,
         default=None,
-        help="Path to (debiased) model checkpoint from which architecture weights are loaded.",
+        help="Path to debiased model checkpoint from which architecture weights are loaded.",
     )
     parser.add_argument(
         "--intrasentence-data-path",
@@ -136,7 +136,8 @@ def main(args):
                                                             args.batch_size,
                                                             args.tiny_eval_frac)
         intrasentence_results = intrasentence_runner.run()
-        with open(os.path.join(output_dir, "intrasentence.json"), "w") as f:
+        lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
+        with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
             json.dump(intrasentence_results, f, indent=2)
         
     if not args.skip_intersentence:
