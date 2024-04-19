@@ -7,9 +7,9 @@ First, run inference/predictions for the model under consideration (following co
 
 1. Bert / Intrasentence: `python code/inference.py`
 
-2. SwissBert / Intrasentence / DE: `python code/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path ".data/df_intrasentence_de.pkl"`
+2. SwissBert / Intrasentence / DE: `python code/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_de.pkl"`
 
-3. SwissBert / Intrasentence / EN: `python code/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path ".data/df_intrasentence_en.pkl"`
+3. SwissBert / Intrasentence / EN: `python code/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_en.pkl"`
 
 The inference output will be saved in the 'inference_output' directory by default.
 
