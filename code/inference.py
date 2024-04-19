@@ -100,6 +100,12 @@ def parse_args():
         action="store_true",
         help="Do not perform intersentence inference.",
     )
+    parser.add_argument(
+        "--experiment-id",
+        type=str,
+        default=None,
+        help="ID of the experiment.",
+    )
     return parser.parse_args()
 
 
@@ -140,7 +146,7 @@ def main(args):
         intrasentence_results = intrasentence_runner.run()
         combined_results["intrasentence"] = intrasentence_results
         
-        with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
+        with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}.json'), "w") as f:
             json.dump(intrasentence_results, f, indent=2)
         
     if not args.skip_intersentence:
@@ -155,10 +161,10 @@ def main(args):
         intersentence_results = intersentence_runner.run()
         combined_results["intersentence"] = intersentence_results
 
-        with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
+        with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}.json'), "w") as f:
             json.dump(intersentence_results, f, indent=2)
     
-    with open(os.path.join(output_dir, f'combined_results{"_" + args.intrasentence_model if not args.skip_intrasentence else ""}{"_" + args.intersentence_model if not args.skip_intersentence else ""}{"_debiased" if args.ckpt_path else ""}_{lang}.json'), "w") as f:
+    with open(os.path.join(output_dir, f'combined_results{"_" + args.intrasentence_model if not args.skip_intrasentence else ""}{"_" + args.intersentence_model if not args.skip_intersentence else ""}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}.json'), "w") as f:
         json.dump(combined_results, f, indent=2)
 
 
