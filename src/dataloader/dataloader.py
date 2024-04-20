@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 from tqdm import tqdm
 from datasets import Dataset
-from utils import utils
+from src.utils import utils
 
 
 logger = logging.getLogger(__name__)

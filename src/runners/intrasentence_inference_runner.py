@@ -3,8 +3,8 @@ import torch
 from tqdm import tqdm
 import logging
 
-from dataloader import dataloader
-from utils import utils
+from src.dataloader import dataloader
+from src.utils import utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 logger = logging.getLogger(__name__)

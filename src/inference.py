@@ -5,9 +5,9 @@ import json
 import torch
 import logging
 
-from models import models
-from runners.intrasentence_inference_runner import IntrasentenceInferenceRunner
-from runners.intersentence_inference_runner import IntersentenceInferenceRunner
+from src.models import models
+from src.runners.intrasentence_inference_runner import IntrasentenceInferenceRunner
+from src.runners.intersentence_inference_runner import IntersentenceInferenceRunner
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
