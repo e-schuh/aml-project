@@ -59,7 +59,6 @@ scikit-learn==1.4.1.post1
 scipy==1.12.0
 sentencepiece==0.2.0
 six==1.16.0
--e git+ssh://git@github.com/katjahager/AML.git@3cd94a38e03bce53a7bfb43daa95288a8e01f473#egg=src
 stack-data==0.6.3
 sympy==1.12
 threadpoolctl==3.4.0

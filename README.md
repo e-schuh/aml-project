@@ -1,6 +1,7 @@
 ## Installation
 1. Clone the repository: `git clone https://github.com/katjahager/AML.git`
 2. Navigate into top-level directory and install the requirements: `cd AML && pip install -r requirements.txt`
+3. Install the project as editable package: `pip install -e .`
 
 ## Run inference
 First, run inference/predictions for the model under consideration (following commands are from the top-level AML directory):
