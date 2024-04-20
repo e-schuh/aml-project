@@ -322,3 +322,6 @@ inference_output
 evaluation_output
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,pycharm
+
+## Added by Marco 
+.DS_Store
