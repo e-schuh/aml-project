@@ -52,8 +52,10 @@ class Lists:
         # Create a topic-dictionary (ex: subjects, activites, fillers) with the category (ex: country) and all the data associated (ex: Germany)
         out = {}
         for name in os.listdir(dir_name):
-            file_name = os.path.join(dir_name, name)
-            out[name] = self.load_list(file_name)
+            if name != ".DS_Store":
+                file_name = os.path.join(dir_name, name)
+                name = os.path.splitext(name)[0]
+                out[name] = self.load_list(file_name)
         return out
 
 
