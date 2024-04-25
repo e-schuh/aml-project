@@ -78,6 +78,12 @@ def parse_args():
         help="Fraction of the dataset to use for evaluation.",
     )
     parser.add_argument(
+        "--softmax-temperature",
+        type=float,
+        default=1.0,
+        help="Temperature to use for softmax.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=str,
         default=None,
@@ -142,7 +148,8 @@ def main(args):
                                                             intrasentence_data_path,
                                                             args.pretrained_model_name,                                                        
                                                             args.batch_size,
-                                                            args.tiny_eval_frac)
+                                                            args.tiny_eval_frac,
+                                                            args.softmax_temperature)
         intrasentence_results = intrasentence_runner.run()
         combined_results["intrasentence"] = intrasentence_results
         
@@ -157,7 +164,8 @@ def main(args):
                                                             intersentence_data_path,
                                                             args.pretrained_model_name,                                                        
                                                             args.batch_size,
-                                                            args.tiny_eval_frac)
+                                                            args.tiny_eval_frac,
+                                                            args.softmax_temperature)
         intersentence_results = intersentence_runner.run()
         combined_results["intersentence"] = intersentence_results
 

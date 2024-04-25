@@ -10,13 +10,14 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 logger = logging.getLogger(__name__)
 
 class IntrasentenceInferenceRunner:
-    def __init__(self, model, tokenizer, data_path, pretrained_model_name, batch_size, tiny_eval_frac):
+    def __init__(self, model, tokenizer, data_path, pretrained_model_name, batch_size, tiny_eval_frac, softmax_temperature):
         self._model = model
         self._tokenizer = tokenizer
         self._data_path = data_path
         self._pretrained_model_name = pretrained_model_name
         self._batch_size = batch_size
         self._tiny_eval_frac = tiny_eval_frac
+        self._softmax_temperature = softmax_temperature
         self._mask_token = self._tokenizer.mask_token
         self._mask_token_id = self._tokenizer.mask_token_id
 
@@ -68,11 +69,13 @@ class IntrasentenceInferenceRunner:
 
             # Get the probabilities for every token in the sentence
             with torch.no_grad():
-                output = model(
+                logits = model(
                     input_ids,
                     attention_mask=attention_mask,
                     token_type_ids=token_type_ids,
-                )[0].softmax(dim=-1)
+                )[0]
+                logits = logits / self._softmax_temperature
+                output = logits.softmax(dim=-1)
             
             # Extract the probabilities for only the masked token in the sentence
             output = output[mask_idxs]

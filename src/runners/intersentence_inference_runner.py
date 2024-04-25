@@ -10,7 +10,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 logger = logging.getLogger(__name__)
 
 class IntersentenceInferenceRunner:
-    def __init__(self, model, tokenizer, data_path, pretrained_model_name, batch_size, tiny_eval_frac):
+    def __init__(self, model, tokenizer, data_path, pretrained_model_name, batch_size, tiny_eval_frac, softmax_temperature):
         pass
 
     def run(self):
