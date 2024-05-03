@@ -22,10 +22,10 @@ class BertForNSP:
         return transformers.BertForNextSentencePrediction.from_pretrained(pretrained_model_name)
     
 class SwissBertForMLM(torch.nn.Module):
-    def __init__(self, pretrained_model_name, language, eraser_path=None, is_eraser_before_lang_adapt=False, *args, **kwargs):
+    def __init__(self, pretrained_model_name, language, eraser_paths=None, is_eraser_before_lang_adapt=False, *args, **kwargs):
         super().__init__()
         self.model = self._get_new_swissBert(pretrained_model_name, SWISSBERT_LANGUAGES).to(DEVICE)
-        self.eraser = self._load_eraser(eraser_path)
+        self.erasers = self._load_erasers(eraser_paths)
         self._is_eraser_before_lang_adapt = is_eraser_before_lang_adapt
 
         if language == "de":
@@ -37,7 +37,7 @@ class SwissBertForMLM(torch.nn.Module):
         else:
             raise ValueError(f"Language {language} not supported by SwissBERT. Supported languages: de, en")
         
-        if self.eraser is not None:
+        if self.erasers is not None:
             # Copy the original language adapter, layer norm and lm head to later re-apply on top of
             # concept-erased hidden states
             self.lm_head = self.get_copy_lm_head()
@@ -70,7 +70,7 @@ class SwissBertForMLM(torch.nn.Module):
         utils.rsetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm", torch.nn.Identity())
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
-        if self.eraser is None:
+        if self.erasers is None:
             logits = self.model(
                 input_ids,
                 attention_mask=attention_mask,
@@ -86,8 +86,10 @@ class SwissBertForMLM(torch.nn.Module):
                 token_type_ids=token_type_ids
                 )[0]
 
-            # Erase concept
-            out = self.eraser(hidden_states)
+            # Erase concepts from hidden states
+            for eraser in self.erasers:
+                hidden_states = eraser(hidden_states)
+            out = hidden_states
 
             if self._is_eraser_before_lang_adapt:
                 batch_size = out.size()[0]
@@ -105,12 +107,16 @@ class SwissBertForMLM(torch.nn.Module):
             return logits
     
 
-    def _load_eraser(self, eraser_path):
-        if eraser_path is None:
+    def _load_erasers(self, eraser_paths):
+        if eraser_paths is None:
             return None
-        with open(eraser_path, 'rb') as path:
-            eraser = pickle.load(path)
-        return eraser
+        
+        erasers = []
+        for eraser_path in eraser_paths:
+            with open(eraser_path, 'rb') as path:
+                eraser = pickle.load(path)
+            erasers.append(eraser)
+        return erasers
 
     def _get_new_swissBert(cls, pretrained_model_name, languages):
         # Load SwissBERT with XLM Vocab ("Variant 1" in paper) with config file

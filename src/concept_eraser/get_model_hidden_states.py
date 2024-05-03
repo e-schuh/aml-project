@@ -32,7 +32,8 @@ def parse_args():
         type=str,
         default="gender",
         choices=[
-            "gender"
+            "gender",
+            "profession"
         ],
         help='Label of concept for which an erasure model should be trained.'
     )

@@ -6,6 +6,7 @@ from transformers import PreTrainedTokenizerBase, BatchEncoding
 import logging
 import torch
 import functools
+import argparse
 
 logger = logging.getLogger(__name__)
 
@@ -101,3 +102,13 @@ class CustomDataCollatorWithPadding:
         except:
             pass
         return batch
+
+class customAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if option_string:
+            if values:
+                setattr(namespace, self.dest, values)
+            else:
+                setattr(namespace, self.dest, self.const)
+        else:
+            setattr(namespace, self.dest, None)

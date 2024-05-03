@@ -8,6 +8,7 @@ import logging
 from src.models import models
 from src.runners.intrasentence_inference_runner import IntrasentenceInferenceRunner
 from src.runners.intersentence_inference_runner import IntersentenceInferenceRunner
+from src.utils import utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -47,11 +48,13 @@ def parse_args():
         help="Pretrained model name from which architecture weights are loaded.",
     )
     parser.add_argument(
-        "--eraser-path",
+        "--eraser-path-list",
         type=str,
-        nargs='?',
-        const='default_path',
-        help="Path to pickle file of trained concept erasure model.",
+        nargs='*',
+        action=utils.customAction,
+        dest='eraser_path_list',
+        const=['default_path'],
+        help="List of paths to pickle files of trained concept erasure models.",
     )
     parser.add_argument(
         "--eraser-before-lang-adapt",
@@ -145,10 +148,10 @@ def main(args):
         output_dir = os.path.join(args.top_level_dir, "inference_output")
     else:
         output_dir = args.output_dir
-    if args.eraser_path == 'default_path':
-        eraser_path = os.path.join(args.top_level_dir, "data/concept_eraser/eraser_models/eraser.pkl")
+    if args.eraser_path_list == ['default_path']:
+        eraser_path_list = [os.path.join(args.top_level_dir, "data/concept_eraser/eraser_models/eraser.pkl")]
     else:
-        eraser_path = args.eraser_path
+        eraser_path_list = args.eraser_path_list
 
 
     os.makedirs(output_dir, exist_ok=True)
@@ -159,7 +162,7 @@ def main(args):
 
     if not args.skip_intrasentence:
         lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
-        intrasentence_model = getattr(models, args.intrasentence_model)(args.ckpt_path or args.pretrained_model_name, lang, eraser_path, args.eraser_before_lang_adapt)
+        intrasentence_model = getattr(models, args.intrasentence_model)(args.ckpt_path or args.pretrained_model_name, lang, eraser_path_list, args.eraser_before_lang_adapt)
         intrasentence_runner = IntrasentenceInferenceRunner(intrasentence_model,
                                                             tokenizer,
                                                             intrasentence_data_path,
@@ -170,12 +173,12 @@ def main(args):
         intrasentence_results = intrasentence_runner.run()
         combined_results["intrasentence"] = intrasentence_results
         
-        with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path else ""}.json'), "w") as f:
+        with open(os.path.join(output_dir, f'intrasentence_{args.intrasentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path_list else ""}.json'), "w") as f:
             json.dump(intrasentence_results, f, indent=2)
         
     if not args.skip_intersentence:
         lang = intersentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
-        intersentence_model = getattr(models, args.intersentence_model)(args.ckpt_path or args.pretrained_model_name, lang, eraser_path, args.eraser_before_lang_adapt)
+        intersentence_model = getattr(models, args.intersentence_model)(args.ckpt_path or args.pretrained_model_name, lang, eraser_path_list, args.eraser_before_lang_adapt)
         intersentence_runner = IntersentenceInferenceRunner(intersentence_model,
                                                             tokenizer,
                                                             intersentence_data_path,
@@ -186,10 +189,10 @@ def main(args):
         intersentence_results = intersentence_runner.run()
         combined_results["intersentence"] = intersentence_results
 
-        with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path else ""}.json'), "w") as f:
+        with open(os.path.join(output_dir, f'intersentence_{args.intersentence_model}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path_list else ""}.json'), "w") as f:
             json.dump(intersentence_results, f, indent=2)
     
-    with open(os.path.join(output_dir, f'combined_results{"_" + args.intrasentence_model if not args.skip_intrasentence else ""}{"_" + args.intersentence_model if not args.skip_intersentence else ""}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path else ""}.json'), "w") as f:
+    with open(os.path.join(output_dir, f'combined_results{"_" + args.intrasentence_model if not args.skip_intrasentence else ""}{"_" + args.intersentence_model if not args.skip_intersentence else ""}{"_debiased" if args.ckpt_path else ""}_{lang}{("_" + args.experiment_id) if args.experiment_id else ""}{("_eraser") if args.eraser_path_list else ""}.json'), "w") as f:
         json.dump(combined_results, f, indent=2)
 
 
