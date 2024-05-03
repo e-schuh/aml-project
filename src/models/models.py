@@ -1,8 +1,17 @@
 import transformers
 import torch
 import logging
+import copy
+import pickle
+from types import MethodType
+
+
+from src.utils import utils
 
 logger = logging.getLogger(__name__)
+SWISSBERT_LANGUAGES = ["de_CH", "fr_CH", "it_CH", "rm_CH", "en_XX"]
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
 
 class BertForMLM:
     def __new__(cls, pretrained_model_name, *args, **kwargs):
@@ -12,21 +21,97 @@ class BertForNSP:
     def __new__(cls, pretrained_model_name, *args, **kwargs):
         return transformers.BertForNextSentencePrediction.from_pretrained(pretrained_model_name)
     
-class SwissBertForMLM:
-    def __new__(cls, pretrained_model_name, language, *args, **kwargs):
-        languages = ["de_CH", "fr_CH", "it_CH", "rm_CH", "en_XX"]
-        swissBert = cls._get_new_swissBert(pretrained_model_name, languages)
+class SwissBertForMLM(torch.nn.Module):
+    def __init__(self, pretrained_model_name, language, eraser_path=None, is_eraser_before_lang_adapt=False, *args, **kwargs):
+        super().__init__()
+        self.model = self._get_new_swissBert(pretrained_model_name, SWISSBERT_LANGUAGES).to(DEVICE)
+        self.eraser = self._load_eraser(eraser_path)
+        self._is_eraser_before_lang_adapt = is_eraser_before_lang_adapt
+
         if language == "de":
-            swissBert.set_default_language("de_CH")
+            self.model.set_default_language("de_CH")
             logger.info("SwissBERT language set to de_CH")
         elif language == "en":
-            swissBert.set_default_language("en_XX")
+            self.model.set_default_language("en_XX")
             logger.info("SwissBERT language set to en_XX")
         else:
             raise ValueError(f"Language {language} not supported by SwissBERT. Supported languages: de, en")
-        return swissBert
+        
+        if self.eraser is not None:
+            # Copy the original language adapter, layer norm and lm head to later re-apply on top of
+            # concept-erased hidden states
+            self.lm_head = self.get_copy_lm_head()
+            if self._is_eraser_before_lang_adapt:
+                self.adapter = self.get_copy_last_layer_adapter()
+                self.layer_norm = self.get_copy_last_layer_layer_norm()
 
-    @classmethod
+            # Deactivate language adapter, layer norm and lm head to get hidden states before language adapter, layer norm and lm head
+            self.remove_head()
+            if self._is_eraser_before_lang_adapt:
+                self.remove_last_layer_adapter()
+                self.remove_last_layer_layer_norm()
+    
+    def get_copy_last_layer_adapter(self):
+        return copy.deepcopy(utils.rgetattr(self.model, "roberta.encoder.layer.11.output.lang_adapter"))
+    
+    def get_copy_last_layer_layer_norm(self):
+        return copy.deepcopy(utils.rgetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm"))
+    
+    def get_copy_lm_head(self):
+        return copy.deepcopy(utils.rgetattr(self.model, "lm_head"))
+    
+    def remove_head(self):
+        utils.rsetattr(self.model, "lm_head", torch.nn.Identity())
+
+    def remove_last_layer_adapter(self):
+        self.model.roberta.encoder.layer[11].output.lang_adapter = MethodType(utils.CustomIdentity(), self.model.roberta.encoder.layer[11].output)
+
+    def remove_last_layer_layer_norm(self):
+        utils.rsetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm", torch.nn.Identity())
+
+    def forward(self, input_ids, attention_mask=None, token_type_ids=None):
+        if self.eraser is None:
+            logits = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )[0]
+            return logits
+        
+        else:
+            # Get hidden states before language adapter, layer norm and lm head
+            hidden_states = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )[0]
+
+            # Erase concept
+            out = self.eraser(hidden_states)
+
+            if self._is_eraser_before_lang_adapt:
+                batch_size = out.size()[0]
+                lang_ids = 0 * torch.ones(batch_size, device=DEVICE)
+                
+                # Re-apply language adapter on erased hidden states
+                out = self.adapter(lang_ids, out)
+
+                # Re-apply layer norm
+                out = self.layer_norm(out)
+
+            # Re-apply lm head
+            logits = self.lm_head(out)
+
+            return logits
+    
+
+    def _load_eraser(self, eraser_path):
+        if eraser_path is None:
+            return None
+        with open(eraser_path, 'rb') as path:
+            eraser = pickle.load(path)
+        return eraser
+
     def _get_new_swissBert(cls, pretrained_model_name, languages):
         # Load SwissBERT with XLM Vocab ("Variant 1" in paper) with config file
         # Note: Params of config file which are not in pre-trained "ZurichNLP/swissbert-xlm-vocab" model (i.e., the en_XX language adapter)

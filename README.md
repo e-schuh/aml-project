@@ -6,11 +6,11 @@
 ## Run inference
 First, run inference/predictions for the model under consideration (following commands are from the top-level AML directory):
 
-1. Bert / Intrasentence: `python src/inference.py`
+- Bert / Intrasentence: `python src/inference.py`
 
-2. SwissBert / Intrasentence / DE: `python src/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_de.pkl"`
+- SwissBert / Intrasentence / DE: `python src/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_de.pkl"`
 
-3. SwissBert / Intrasentence / EN: `python src/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_en.pkl"`
+- SwissBert / Intrasentence / EN: `python src/inference.py  --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_en.pkl"`
 
 The inference output will be saved in the 'inference_output' directory by default.
 
@@ -21,12 +21,25 @@ If a GPU is available, it will automatically be used. If on an Apple Silicon dev
 ## Evaluate predictions
 To evaluate the generated predictions from above, run the following command from the top-level AML directory:
 
-1. Bert / Intrasentence: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_en.pkl" --inference-output-file "./inference_output/combined_results_BertForMLM_en.json" --skip-intersentence`
+- Bert / Intrasentence: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_en.pkl" --inference-output-file "./inference_output/combined_results_BertForMLM_en.json" --skip-intersentence`
 
-2. SwissBert / Intrasentence / DE: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_de.pkl" --inference-output-file "./inference_output/combined_results_SwissBertForMLM_de.json" --skip-intersentence`
+- SwissBert / Intrasentence / DE: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_de.pkl" --inference-output-file "./inference_output/combined_results_SwissBertForMLM_de.json" --skip-intersentence`
 
-3. SwissBert / Intrasentence / EN: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_en.pkl" --inference-output-file "./inference_output/combined_results_SwissBertForMLM_en.json" --skip-intersentence`
+- SwissBert / Intrasentence / EN: `python src/evaluation.py --intrasentence-gold-file-path "./data/df_intrasentence_en.pkl" --inference-output-file "./inference_output/combined_results_SwissBertForMLM_en.json" --skip-intersentence`
 
 The evaluation output (i.e., the different scores) will be saved in the 'evaluation_output' directory by default.
 
 Note: Adjust the paths provided to `evaluation.py` as needed. The gold file path (`--intrasentence-gold-file-path`) points to the ground truth data frame (choose the appropriate language that matches the inference file); the inference output path (`--inference-output-file`) to the file created by running inference from the above step. For more information, run `python src/evaluation.py --help`.
+
+## Concept erasure
+_Note: If on an Apple silicon device (M1, M2, M3,...), one needs to run `export PYTORCH_ENABLE_MPS_FALLBACK=1` in the command line before running the following commands for concept erasure (because certain operations of concept-erasure are not yet natively supported on Apple silicon devices)._
+
+To train a concept erasure model ([Belrose et al. (2023)](https://arxiv.org/pdf/2306.03819)) and apply it to the SwissBert model, run the following commands from the top-level AML directory:
+
+1. Pre-compute and save the SwissBert hidden states before the language modelling head: `python src/concept_eraser/get_model_hidden_states.py --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab"`
+
+2. Train the concept erasure model using the pre-computed hidden states: `python src/concept_eraser/train_concept_erasure_model.py`
+
+3. Run inference as described above for SwissBert but with the concept erasure model (indicated by the `--eraser-path` argument pointing to the .pkl file of the trained concept erasure model from previous step; if no specific path is provided with the flag, the default save path of the previous step will be used).: `python src/inference.py --intrasentence-model "SwissBertForMLM" --pretrained-model-name "ZurichNLP/swissbert-xlm-vocab" --intrasentence-data-path "./data/df_intrasentence_de.pkl" --eraser-path`
+
+4. Evaluate the predictions as described above.

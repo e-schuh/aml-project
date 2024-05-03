@@ -320,6 +320,7 @@ pyrightconfig.json
 logs
 inference_output
 evaluation_output
+data/concept_eraser
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,pycharm
 

@@ -5,6 +5,7 @@ from transformers.utils import PaddingStrategy
 from transformers import PreTrainedTokenizerBase, BatchEncoding
 import logging
 import torch
+import functools
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,25 @@ def aggregate_scores(scores):
     result = np.sum([np.log(i) for i in scores])
 
     return result
+
+
+def rsetattr(obj, attr, val):
+    pre, _, post = attr.rpartition('.')
+    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+
+
+
+class CustomIdentity(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def forward(self, inp, lang, *args, **kwargs):
+        return args[0]
 
 
 @dataclass
@@ -76,5 +96,8 @@ class CustomDataCollatorWithPadding:
                     batch[key] = []
                 batch[key].append(value)
         
-        batch['masked_tokens'] = torch.stack(batch['masked_tokens'])
+        try:
+            batch['masked_tokens'] = torch.stack(batch['masked_tokens'])
+        except:
+            pass
         return batch
