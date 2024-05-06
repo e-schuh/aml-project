@@ -13,8 +13,8 @@ from torch import FloatTensor
 
 
 import json
-from utils.holder import *
-from utils.extract import get_tokenizer, tokenize_underspecified_input
+# from utils.holder import * #tried commenting cause not accessed 
+# from utils.extract import get_tokenizer, tokenize_underspecified_input #tried commenting cause not accessed
 from transformers import *
 import math
 from redubias.calc_bias import Dataset, calculate_reward, calculate_batch_manhattan, collate_fn,unqover_reward
@@ -44,8 +44,10 @@ def main():
     parser.add_argument('--output', type=str, default="new_model", help = "Name of the model")
     parser.add_argument('--ppdata', type=str, default="", help = "Path of the preprocessed data")
     parser.add_argument('--use_he_she', help="Whether to account for lm predictions on he/she", type=int, default=0)
+    parser.add_argument('--intrasentence_model', help="Which intrasentence model to use", type=str, default = "BertForMLM")
+    parser.add_argument('--pretrained_model_name', help="Which intrasentence model to use", type=str, default = "bert-base-uncased")
     args = parser.parse_args()
-    torch.cuda.set_device(args.device)
+    # torch.cuda.set_device(args.device) # Googling it seems this doesn't work on CPU-only devices
     ppdata_path = args.ppdata
     ## Loading Pre-processed Data
 
@@ -78,10 +80,10 @@ def main():
     print("Defining Model", flush=True)
     #NOTE: Insert the name of the model here
     transformer_type = "bert-base-uncased"
-    model = CustomBERTModel(topk, batch_size).to(device)
+    model = CustomBERTModel(topk, batch_size, args.intrasentence_model, args.pretrained_model_name).to(device)
 
     for layer_name, param in model.named_parameters():
-        if 'bert' in layer_name:   #### FLAG: PROBABLY NEED TO CHANGE THIS WITH OUR MODEL
+        if 'bert' in layer_name:   # Still works with our custom model
             param.requires_grad = False
     print("Loading Dataset", flush=True)
     training_values = Dataset(values)
@@ -102,22 +104,22 @@ def main():
     for epoch in range(num_epochs):
         # Training
         for local_batch in training_generator:
-            with torch.cuda.device(0):
-            # Transfer to GPU
-                loss, reward = calculate_reward(args, local_batch, mini_batch_size, topk, model.tokenizer, model)
-                if step % 100 == 0:
-                    print("Step ", step, "| Loss:  ", loss.item(), "| Reward: ", reward, flush=True)
+        # with torch.cuda.device(0): # Commented out cause probably doesn't work on CPU-only device
+        # Transfer to GPU
+            loss, reward = calculate_reward(args, local_batch, mini_batch_size, topk, model.tokenizer, model)
+            if step % 100 == 0:
+                print("Step ", step, "| Loss:  ", loss.item(), "| Reward: ", reward, flush=True)
 
-                if not torch.isnan(loss):
-                    loss.backward()
+            if not torch.isnan(loss):
+                loss.backward()
 
-                optimizer.step()
+            optimizer.step()
 
-                optimizer.zero_grad()
+            optimizer.zero_grad()
 
-                rewards.append(reward)
+            rewards.append(reward)
 
-                step += 1
+            step += 1
 
     stop = process_time()
     print("time elapsed: ", stop - start)

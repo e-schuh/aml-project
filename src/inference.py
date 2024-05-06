@@ -159,7 +159,6 @@ def main(args):
     combined_results = {}
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(args.pretrained_model_name, use_fast=True)
-
     if not args.skip_intrasentence:
         lang = intrasentence_data_path.split("/")[-1].split("_")[-1].split(".")[0]
         intrasentence_model = getattr(models, args.intrasentence_model)(args.ckpt_path or args.pretrained_model_name, lang, eraser_path_list, args.eraser_before_lang_adapt)
