@@ -128,4 +128,5 @@ def main():
     torch.save(model, 'saved_models/'+name)
 
 if __name__ == '__main__':
+    # mp.set_start_method('spawn')  # seems to be needed otherwise we get error with os.fork and JAX incompatibility. 
     main()
