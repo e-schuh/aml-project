@@ -13,9 +13,56 @@ SWISSBERT_LANGUAGES = ["de_CH", "fr_CH", "it_CH", "rm_CH", "en_XX"]
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 
-class BertForMLM:
-    def __new__(cls, pretrained_model_name, *args, **kwargs):
-        return transformers.BertForMaskedLM.from_pretrained(pretrained_model_name)
+class BertForMLM(torch.nn.Module):
+    def __init__(self, pretrained_model_name, eraser_paths=None, *args, **kwargs):
+        super().__init__()
+        self.model = self._get_new_Bert(pretrained_model_name).to(DEVICE)
+        self.erasers = _load_erasers(eraser_paths)
+        
+        if self.erasers is not None:
+            # Copy the lm head to later re-apply on top of concept-erased hidden states
+            self.lm_head = self._get_copy_lm_head()
+
+            # Deactivate lm head to get hidden states before lm head
+            self._remove_head()
+
+    def forward(self, input_ids, attention_mask=None, token_type_ids=None):
+        if self.erasers is None:
+            logits = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )[0]
+            return logits
+        
+        else:
+            # Get hidden states before lm head
+            hidden_states = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )[0]
+
+            # Erase concepts from hidden states
+            for eraser in self.erasers:
+                hidden_states = eraser(hidden_states)
+            out = hidden_states
+
+            # Re-apply lm head
+            logits = self.lm_head(out)
+
+            return logits
+    
+    def _get_copy_lm_head(self):
+        return copy.deepcopy(utils.rgetattr(self.model, "cls"))
+    
+    def _remove_head(self):
+        utils.rsetattr(self.model, "cls", torch.nn.Identity())
+
+
+    def _get_new_Bert(self, pretrained_model_name):
+        bert = transformers.AutoModelForMaskedLM.from_pretrained(pretrained_model_name)
+        return bert
     
 class BertForNSP:
     def __new__(cls, pretrained_model_name, *args, **kwargs):
@@ -25,7 +72,7 @@ class SwissBertForMLM(torch.nn.Module):
     def __init__(self, pretrained_model_name, language, eraser_paths=None, is_eraser_before_lang_adapt=False, *args, **kwargs):
         super().__init__()
         self.model = self._get_new_swissBert(pretrained_model_name, SWISSBERT_LANGUAGES).to(DEVICE)
-        self.erasers = self._load_erasers(eraser_paths)
+        self.erasers = _load_erasers(eraser_paths)
         self._is_eraser_before_lang_adapt = is_eraser_before_lang_adapt
 
         if language == "de":
@@ -40,33 +87,33 @@ class SwissBertForMLM(torch.nn.Module):
         if self.erasers is not None:
             # Copy the original language adapter, layer norm and lm head to later re-apply on top of
             # concept-erased hidden states
-            self.lm_head = self.get_copy_lm_head()
+            self.lm_head = self._get_copy_lm_head()
             if self._is_eraser_before_lang_adapt:
-                self.adapter = self.get_copy_last_layer_adapter()
-                self.layer_norm = self.get_copy_last_layer_layer_norm()
+                self.adapter = self._get_copy_last_layer_adapter()
+                self.layer_norm = self._get_copy_last_layer_layer_norm()
 
             # Deactivate language adapter, layer norm and lm head to get hidden states before language adapter, layer norm and lm head
-            self.remove_head()
+            self._remove_head()
             if self._is_eraser_before_lang_adapt:
-                self.remove_last_layer_adapter()
-                self.remove_last_layer_layer_norm()
+                self._remove_last_layer_adapter()
+                self._remove_last_layer_layer_norm()
     
-    def get_copy_last_layer_adapter(self):
+    def _get_copy_last_layer_adapter(self):
         return copy.deepcopy(utils.rgetattr(self.model, "roberta.encoder.layer.11.output.lang_adapter"))
     
-    def get_copy_last_layer_layer_norm(self):
+    def _get_copy_last_layer_layer_norm(self):
         return copy.deepcopy(utils.rgetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm"))
     
-    def get_copy_lm_head(self):
+    def _get_copy_lm_head(self):
         return copy.deepcopy(utils.rgetattr(self.model, "lm_head"))
     
-    def remove_head(self):
+    def _remove_head(self):
         utils.rsetattr(self.model, "lm_head", torch.nn.Identity())
 
-    def remove_last_layer_adapter(self):
+    def _remove_last_layer_adapter(self):
         self.model.roberta.encoder.layer[11].output.lang_adapter = MethodType(utils.CustomIdentity(), self.model.roberta.encoder.layer[11].output)
 
-    def remove_last_layer_layer_norm(self):
+    def _remove_last_layer_layer_norm(self):
         utils.rsetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm", torch.nn.Identity())
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
@@ -105,20 +152,8 @@ class SwissBertForMLM(torch.nn.Module):
             logits = self.lm_head(out)
 
             return logits
-    
 
-    def _load_erasers(self, eraser_paths):
-        if eraser_paths is None:
-            return None
-        
-        erasers = []
-        for eraser_path in eraser_paths:
-            with open(eraser_path, 'rb') as path:
-                eraser = pickle.load(path)
-            erasers.append(eraser)
-        return erasers
-
-    def _get_new_swissBert(cls, pretrained_model_name, languages):
+    def _get_new_swissBert(self, pretrained_model_name, languages):
         # Load SwissBERT with XLM Vocab ("Variant 1" in paper) with config file
         # Note: Params of config file which are not in pre-trained "ZurichNLP/swissbert-xlm-vocab" model (i.e., the en_XX language adapter)
         # get randomly initialized
@@ -170,3 +205,14 @@ class SwissBertForMLM(torch.nn.Module):
 class SwissBertForNSP:
     def __new__(cls, pretrained_model_name):
         raise NotImplementedError
+    
+def _load_erasers(eraser_paths):
+    if eraser_paths is None:
+        return None
+    
+    erasers = []
+    for eraser_path in eraser_paths:
+        with open(eraser_path, 'rb') as path:
+            eraser = pickle.load(path)
+        erasers.append(eraser)
+    return erasers
