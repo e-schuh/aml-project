@@ -2,9 +2,8 @@
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
-
-TOP_LEVEL_DIR=$(dirname $(dirname "$parent_path"))
-TRAINING_DATA_DIR=${TOP_LEVEL_DIR}/data/refine_lm/training_data
+TOP_LEVEL_DIR=$(dirname "$(dirname "$parent_path")")
+TRAINING_DATA_DIR="${TOP_LEVEL_DIR}/data/refine_lm/training_data"
 mkdir -p ${TRAINING_DATA_DIR}
 
 # BERT and DistilBERT
@@ -17,7 +16,7 @@ FILE=slotmap_${SUBJ//_}_${ACT//_}_${SLOT//_}
 MODEL=distilbert-base-uncased
 python3 -m templates.generate_underspecified_templates --template_type $TYPE \
 --subj $SUBJ --act $ACT --slot $SLOT \
---output ${TRAINING_DATA_DIR}/${FILE}.source.json
+--output "${TRAINING_DATA_DIR}/${FILE}.source.json"
 
 
 TYPE=slot_act_map
@@ -28,7 +27,7 @@ FILE=slotmap_${SUBJ//_}_${ACT//_}_${SLOT//_}
 MODEL=distilbert-base-uncased
 python3 -m templates.generate_underspecified_templates --template_type $TYPE \
 --subj $SUBJ --act $ACT --slot $SLOT \
---output ${TRAINING_DATA_DIR}/${FILE}.source.json
+--output "${TRAINING_DATA_DIR}/${FILE}.source.json"
 
 
 
@@ -42,7 +41,7 @@ for DATA in country religion ethnicity; do
     FILE=slotmap_${SUBJ//_}_${ACT//_}_${SLOT//_}
     python3 -m templates.generate_underspecified_templates --template_type $TYPE \
     --subj $SUBJ --act $ACT --slot $SLOT \
-    --output ${TRAINING_DATA_DIR}/${FILE}.source.json
+    --output "${TRAINING_DATA_DIR}/${FILE}.source.json"
 done
 
 
@@ -54,7 +53,7 @@ for DATA in country religion ethnicity; do
     FILE=slotmap_${SUBJ//_}_${ACT//_}_${SLOT//_}
     python3 -m templates.generate_underspecified_templates --template_type $TYPE \
     --subj $SUBJ --act $ACT --slot $SLOT \
-    --output ${TRAINING_DATA_DIR}/${FILE}.source.json
+    --output "${TRAINING_DATA_DIR}/${FILE}.source.json"
 done
 
 ###################################################################

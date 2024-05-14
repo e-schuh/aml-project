@@ -3,10 +3,10 @@
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
 
-TOP_LEVEL_DIR=$(dirname $(dirname "$parent_path"))
+TOP_LEVEL_DIR=$(dirname "$(dirname "$parent_path")")
 
 # Directory containing the data files
-DATA_DIR=${TOP_LEVEL_DIR}/data/refine_lm/training_data
+DATA_DIR="${TOP_LEVEL_DIR}/data/refine_lm/training_data"
 
 topk=8
 cat=gender
@@ -16,7 +16,7 @@ model=swissbert_o_${cat}_tk${topk}
 
 echo ">> Training model "${model}
 
-python3 -m training_bert --ppdata ${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl --topk ${topk} --model_name ${model}
+python3 -m training_bert --ppdata "${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl" --topk ${topk} --model_name ${model}
 
 # MODEL_PATH=saved_models/${model}
 # OUTPUT=data/output/${model}.output.json
