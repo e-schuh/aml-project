@@ -323,10 +323,6 @@ evaluation_output
 data/concept_eraser
 playground.ipynb
 data/refine_lm
+.DS_Store
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,pycharm
-
-## Added by Marco 
-.DS_Store
-src/refine_lm/data
-src/refine_lm/saved_models
