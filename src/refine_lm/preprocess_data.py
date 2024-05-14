@@ -4,6 +4,7 @@ import json
 
 import _pickle as pickle
 import argparse
+import tqdm
 
 
 def load_input(path):
@@ -23,8 +24,9 @@ def load_input(path):
 
 
 def preprocess(source):
+    print("Preprocessing")
     rs = []
-    for i, (scluster, spair, tid, acluster, opair, context, choices, questions) in enumerate(source):
+    for i, (scluster, spair, tid, acluster, opair, context, choices, questions) in tqdm.tqdm(enumerate(source)):
         for j, q in enumerate(questions):
             rs.append(((i, j), scluster, spair, tid, acluster,
                       opair, context + ' ' + q, choices))
@@ -38,8 +40,9 @@ def pairwise(i):
 
 
 def create_pickle(preprocessed):
+    print("Creating pickle")
     new_pkl = {}
-    for a, b in pairwise(preprocessed):
+    for a, b in tqdm.tqdm(pairwise(preprocessed)):
         if ((a[2][1], a[2][0]), a[5], a[3]) in new_pkl.keys():
             new_pkl[((a[2][1], a[2][0]), a[5], a[3])
                     ].extend([list(a), list(b)])

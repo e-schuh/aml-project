@@ -10,10 +10,10 @@ import time
 import math
 
 class CustomBERTModel(nn.Module):
-	def __init__(self, k, batch_size, intrasentence_model = "BertForMLM", pretrained_model_name = "bert-base-uncased", language = "en"):
+	def __init__(self, k, batch_size, intrasentence_model = "SwissBertForMLM", pretrained_model_name = "ZurichNLP/swissbert-xlm-vocab", language = "en"):
 		super(CustomBERTModel, self).__init__()
 		self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name, return_token_type_ids=False, use_fast=True)
-		self.distilbert = getattr(models, intrasentence_model)(pretrained_model_name, language) # output_hidden_states=True ??
+		self.bert = getattr(models, intrasentence_model)(pretrained_model_name, language=language) # output_hidden_states=True ??
 		self.topk = k
 		self.batch_size = batch_size
 		# self.out = nn.Linear(30522, 30522)
@@ -33,7 +33,7 @@ class CustomBERTModel(nn.Module):
 	def forward(self, input_ids=None, attention_mask=None, token_type_ids=None):
 
 		st_time = time.time()
-		output = self.distilbert(input_ids)
+		output = self.bert(input_ids)
 
 		o_time = time.time()-st_time
 
@@ -43,7 +43,7 @@ class CustomBERTModel(nn.Module):
 		i_time = time.time()-st_time-o_time
 
 		for i in range(len(output)): # number of sentence  #removed a .logits to see what happens
-			masked_index = (input_ids[i] == self.tokenizer.mask_token_id).nonzero().item()
+			masked_index = (input_ids[i] == self.tokenizer.mask_token_id)
 			j = masked_index
 			logits = output[i, j, :] #[sentence, word, probable token]  #removed a .logits to see what happens
 
@@ -58,12 +58,12 @@ class CustomBERTModel(nn.Module):
 			"""
 			output_values  = self.out(values)
 			# NOTE: Added later to make the negative values disappear from the last layer.
-			layer_output = output_values.softmax(dim=0)
+			layer_output = output_values.softmax(dim=-1)
 			# layer_output = output_values
 			#Filling in the topk logits in the dictionary with the actual values
-			for k in range(len(indices)):
+			for k in range(indices.shape[-1]):
 				# inputs[i, j, indices[k]] = output.logits[i, j, indices[k]]
-				inputs[i, j, indices[k]] = layer_output[k]
+				inputs[i, j, indices[:,k]] = layer_output[:,k]
 			# print("size of inputs: ", inputs.size())
 		return inputs
 		# return MaskedLMOutput(logits=inputs, hidden_states=output.hidden_states)

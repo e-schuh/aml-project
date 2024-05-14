@@ -5,6 +5,7 @@ import logging
 
 from src.dataloader import dataloader
 from src.utils import utils
+from src.refine_lm import model_BERT
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 logger = logging.getLogger(__name__)
@@ -69,13 +70,16 @@ class IntrasentenceInferenceRunner:
 
             # Get the probabilities for every token in the sentence
             with torch.no_grad():
-                logits = model(
+                model_out = model(
                     input_ids,
                     attention_mask=attention_mask,
                     token_type_ids=token_type_ids,
                 )
-                logits = logits / self._softmax_temperature
-                output = logits.softmax(dim=-1)
+                if isinstance(model.model, model_BERT.CustomBERTModel):
+                    output = model_out
+                else:
+                    model_out = model_out / self._softmax_temperature
+                    output = model_out.softmax(dim=-1)
             
             # Extract the probabilities for only the masked token in the sentence
             output = output[mask_idxs]

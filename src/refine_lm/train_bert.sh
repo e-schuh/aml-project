@@ -1,16 +1,22 @@
 #!/bin/bash
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
+
+TOP_LEVEL_DIR=$(dirname $(dirname "$parent_path"))
+
+# Directory containing the data files
+DATA_DIR=${TOP_LEVEL_DIR}/data/refine_lm/training_data
 
 topk=8
 cat=gender
 
-Bert Gender
 model=swissbert_o_${cat}_tk${topk}
 
 
 echo ">> Training model "${model}
 
-python3 -m training_bert --intrasentence_model "SwissBertForMLM" --pretrained_model_name "ZurichNLP/swissbert-xlm-vocab" --use_he_she 1 --epochs 1 --mini_batch_size 70 --batch_size 70 --topk ${topk} --lr 5e-9 --output ${model} --ppdata data/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl
+python3 -m training_bert --ppdata ${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl --topk ${topk} --model_name ${model}
 
 # MODEL_PATH=saved_models/${model}
 # OUTPUT=data/output/${model}.output.json

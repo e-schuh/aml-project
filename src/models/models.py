@@ -7,6 +7,7 @@ from types import MethodType
 
 
 from src.utils import utils
+from src.refine_lm import model_BERT
 
 logger = logging.getLogger(__name__)
 SWISSBERT_LANGUAGES = ["de_CH", "fr_CH", "it_CH", "rm_CH", "en_XX"]
@@ -27,6 +28,13 @@ class BertForMLM(torch.nn.Module):
             self._remove_head()
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
+        if isinstance(self.model, model_BERT.CustomBERTModel):
+            probs = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )
+            return probs
         if self.erasers is None:
             logits = self.model(
                 input_ids,
@@ -71,12 +79,19 @@ class BertForNSP:
 class SwissBertForMLM(torch.nn.Module):
     def __init__(self, pretrained_model_name, language, eraser_paths=None, is_eraser_before_lang_adapt=False, *args, **kwargs):
         super().__init__()
-        self.model = self._get_new_swissBert(pretrained_model_name, SWISSBERT_LANGUAGES).to(DEVICE)
+        if pretrained_model_name.endswith((".pt", ".pth")):
+            self.model = self._get_saved_model(pretrained_model_name, DEVICE)
+        else:
+            self.model = self._get_new_swissBert(pretrained_model_name, SWISSBERT_LANGUAGES).to(DEVICE)
+        
         self.erasers = _load_erasers(eraser_paths)
         self._is_eraser_before_lang_adapt = is_eraser_before_lang_adapt
 
         if language == "de":
-            self.model.set_default_language("de_CH")
+            if isinstance(self.model, model_BERT.CustomBERTModel):
+                self.model.bert.model.set_default_language("de_CH")
+            else:
+                self.model.set_default_language("de_CH")
             logger.info("SwissBERT language set to de_CH")
         elif language == "en":
             self.model.set_default_language("en_XX")
@@ -117,6 +132,13 @@ class SwissBertForMLM(torch.nn.Module):
         utils.rsetattr(self.model, "roberta.encoder.layer.11.output.LayerNorm", torch.nn.Identity())
 
     def forward(self, input_ids, attention_mask=None, token_type_ids=None):
+        if isinstance(self.model, model_BERT.CustomBERTModel):
+            probs = self.model(
+                input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids
+                )
+            return probs
         if self.erasers is None:
             logits = self.model(
                 input_ids,
@@ -153,6 +175,16 @@ class SwissBertForMLM(torch.nn.Module):
 
             return logits
 
+    def _get_saved_model(self, ckpt_path, device=DEVICE):
+        cfg = torch.load(ckpt_path, map_location=device)
+        state_dict = cfg["state_dict"]
+        topk = cfg["topk"]
+        batch_size = cfg["batch_size"]
+        model = model_BERT.CustomBERTModel(topk, batch_size, "SwissBertForMLM", "ZurichNLP/swissbert-xlm-vocab")
+        model.load_state_dict(state_dict)
+        model.eval()
+        return model
+    
     def _get_new_swissBert(self, pretrained_model_name, languages):
         # Load SwissBERT with XLM Vocab ("Variant 1" in paper) with config file
         # Note: Params of config file which are not in pre-trained "ZurichNLP/swissbert-xlm-vocab" model (i.e., the en_XX language adapter)

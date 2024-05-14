@@ -1,7 +1,12 @@
 #!/bin/bash
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
+
+TOP_LEVEL_DIR=$(dirname $(dirname "$parent_path"))
+
 # Directory containing the data files
-DATA_DIR="data"
+DATA_DIR=${TOP_LEVEL_DIR}/data/refine_lm/training_data
 
 # Path to the preprocess_data.py script
 SCRIPT="preprocess_data.py"
