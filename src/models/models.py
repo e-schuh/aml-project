@@ -96,7 +96,10 @@ class SwissBertForMLM(torch.nn.Module):
                 self.model.set_default_language("de_CH")
             logger.info("SwissBERT language set to de_CH")
         elif language == "en":
-            self.model.set_default_language("en_XX")
+            if isinstance(self.model, model_BERT.CustomBERTModel):
+                self.model.bert.model.set_default_language("en_XX")
+            else:
+                self.model.set_default_language("en_XX")
             logger.info("SwissBERT language set to en_XX")
         else:
             raise ValueError(f"Language {language} not supported by SwissBERT. Supported languages: de, en")

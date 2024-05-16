@@ -123,13 +123,13 @@ def load_model_and_tokenizer(pretrained_model_name, intrasentence_model, ckpt_pa
     return model, tokenizer
 
 def remove_head(model):
-    model.remove_head()
+    model._remove_head()
     return model
 
 def remove_lang_adapters_in_layer(model):
     if model.model.name_or_path == "ZurichNLP/swissbert-xlm-vocab":
-        model.remove_last_layer_adapter()
-        model.remove_last_layer_layer_norm()
+        model._remove_last_layer_adapter()
+        model._remove_last_layer_layer_norm()
     else:
         logger.info("No language adapters to remove.")
     return model
@@ -207,9 +207,9 @@ def main(args):
 
     avg_hidden_states, cls_hidden_states = get_hidden_states(model, dataloader)
 
-    torch.save(concept_labels, f'{output_dir}/{args.dataset_split}_{args.concept_label}{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
-    torch.save(avg_hidden_states, f'{output_dir}/{args.dataset_split}_avg{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
-    torch.save(cls_hidden_states, f'{output_dir}/{args.dataset_split}_cls{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
+    torch.save(concept_labels, f'{output_dir}/{args.dataset_split}_{args.concept_label}_labels{("_beforeLangAdp") if args.remove_lang_adapters_last_layer else ""}{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
+    torch.save(avg_hidden_states, f'{output_dir}/{args.dataset_split}_{args.concept_label}_avg{("_beforeLangAdp") if args.remove_lang_adapters_last_layer else ""}{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
+    torch.save(cls_hidden_states, f'{output_dir}/{args.dataset_split}_{args.concept_label}_cls{("_beforeLangAdp") if args.remove_lang_adapters_last_layer else ""}{("_" + args.experiment_id) if args.experiment_id else ""}.pt')
 
     logger.info("Concept labels and hidden states saved.")
     logger.info("############# FINISHED #############")

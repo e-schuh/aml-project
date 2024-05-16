@@ -14,13 +14,13 @@ def parse_args():
     parser.add_argument(
         "--path-to-hidden-states",
         type=str,
-        default=os.path.join(TOP_LEVEL_DIR, "data/concept_eraser/hidden_states/dev_cls.pt"),
+        default=os.path.join(TOP_LEVEL_DIR, "data/concept_eraser/hidden_states/dev_gender_cls.pt"),
         help='Path to saved hidden states.'
     )
     parser.add_argument(
         "--path-to-concept-labels",
         type=str,
-        default=os.path.join(TOP_LEVEL_DIR, "data/concept_eraser/hidden_states/dev_gender.pt"),
+        default=os.path.join(TOP_LEVEL_DIR, "data/concept_eraser/hidden_states/dev_gender_labels.pt"),
         help='Path to saved concept labels.'
     )
     parser.add_argument(
