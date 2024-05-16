@@ -1,21 +1,6 @@
-import sys
-import argparse
-import os
-import numpy as np
 import torch
-from torch.autograd import Variable
-from torch import nn
-from torch.nn.functional import gelu
-from torch import cuda
-import json
-# from utils.holder import * # commented out because seemingly not needed
-# from utils.extract import get_tokenizer, tokenize_underspecified_input # commented out because seemingly not needed
-from transformers import *
 from templates.lists import Lists
-from model_LLM import CustomLLMModel
-from torch.nn.functional import normalize
 
-import random
 
 
 def load_gender_names(lists):
@@ -42,29 +27,6 @@ if gpuid != -1:
     # torch.cuda.manual_seed_all(1)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #################
-
-
-"""Function to get Top K Predictions"""
-
-
-# def activation_function(logits, k):
-#     # st_time = time.time()
-#     values, indices = logits.topk(k)
-#     s = torch.sum(logits)
-#     # print(f'Time to get sum of logits: {time.time() - st_time}', flush=True)
-#     s1 = torch.sum(values)
-#     leftover = 0 #NOTE: Filling in zeroes instead of leftover.
-#     # print("leftover: ", leftover)
-#     ### NOTE: Most expensive function!!!
-#     # probs_slow = torch.tensor([logit*0.9/s1 if logit in values else leftover for logit in logits], requires_grad=True).to(device)
-#     ### FIX: Using Scatter Add function
-#     # print("Devices logits: ", logits.device)
-#     probs = torch.full((len(logits),), leftover, dtype=values.dtype, device = device)
-#     # values_modified = torch.mul(0.9/s1, values) #NOTE: Normalising the topk values
-#     values = normalize(values, p=1.0, dim=0).to(torch.device("cuda"))
-#     probs_res = probs.scatter_(0, indices, values)
-
-#     return probs_res, indices
 
 def get_tokens(inputs, outputs, batch_size, tokenizer, k):
     results = []
@@ -107,20 +69,10 @@ def predict(opt, topk, batch_seq, batch_choices, tokeniser, model):
     female, male = load_gender_names(lists)
     k = topk
 
-    if isinstance(model, CustomLLMModel):
-        tokenized_inputs = tokeniser(batch_seq, return_tensors="pt", padding=True, truncation=True,
-                                     max_length=1024)
-
-        input_ids = tokenized_inputs['input_ids'].to(device)
-        attention_mask = tokenized_inputs['attention_mask'].to(device)
-
-        batch_topk = model.forward(input_ids, attention_mask, batch_choices)
-
-    else:
-        inputs = tokeniser(batch_seq, return_tensors='pt', padding=True).to(device)
-        outputs = model(**inputs)
-        batch_topk = get_tokens(inputs, outputs, len(batch_seq), model.tokenizer,
-                                topk)  # ERROR: probs are being transffered as zero here
+    inputs = tokeniser(batch_seq, return_tensors='pt', padding=True).to(device)
+    outputs = model(**inputs)
+    batch_topk = get_tokens(inputs, outputs, len(batch_seq), model.tokenizer,
+                            topk)  # ERROR: probs are being transffered as zero here
 
     rs = []
     # print("batch topk : ",batch_topk)

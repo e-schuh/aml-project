@@ -4,12 +4,14 @@ import logging
 import copy
 import pickle
 from types import MethodType
+from transformers import logging as hf_logging
 
 
 from src.utils import utils
 from src.refine_lm import model_BERT
 
 logger = logging.getLogger(__name__)
+hf_logging.set_verbosity_error()
 SWISSBERT_LANGUAGES = ["de_CH", "fr_CH", "it_CH", "rm_CH", "en_XX"]
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 

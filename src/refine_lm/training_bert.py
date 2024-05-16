@@ -1,31 +1,16 @@
 
-import sys
 import argparse
 import os
 import torch
-import numpy as np
-from torch.autograd import Variable
-from torch import nn
-from torch import cuda
-
-import torch.nn.functional as F
-from torch import FloatTensor
 
 
-import json
-# from utils.holder import * #tried commenting cause not accessed 
-# from utils.extract import get_tokenizer, tokenize_underspecified_input #tried commenting cause not accessed
-from transformers import *
-import math
-from redubias.calc_bias import Dataset, calculate_reward, calculate_batch_manhattan, collate_fn,unqover_reward
-# from redubias.predict_topk import predict_answers
-from redubias.predict_topk import predict_answers
-# from model import CustomBERTModel
+#from transformers import *
+from redubias.calc_bias import Dataset, calculate_reward, collate_fn
 from model_BERT import CustomBERTModel
 import _pickle as pickle
 from time import process_time
-import random
 from templates.lists import Lists
+from transformers import set_seed
 
 gpuid = -1
 
@@ -55,7 +40,6 @@ def main():
 
     lists = Lists("word_lists", None)
 
-    from transformers import set_seed
 
     set_seed(0)
 
@@ -125,7 +109,7 @@ def main():
     stop = process_time()
     print("time elapsed: ", stop - start)
     #Save model
-    save_dir = os.path.join(TOP_LEVEL_DIR, "data/refine_lm/saved_models")
+    save_dir = os.path.join(TOP_LEVEL_DIR, "data/refine_lm/saved_models/tiny")
     os.makedirs(save_dir, exist_ok=True)
     save_path = f'{os.path.join(save_dir, model_name)}.pth'
     cfg = {

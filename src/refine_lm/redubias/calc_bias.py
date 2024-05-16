@@ -1,23 +1,8 @@
-import sys
-import argparse
-# import h5py # commented out because seemingly not needed
-import os
 import numpy as np
 import torch
-from torch.autograd import Variable
-from torch import nn
-from torch import cuda
 
 import torch.nn.functional as F
-from torch import FloatTensor
 
-
-
-import json
-# from utils.holder import * # commented out because seemingly not needed
-# from utils.extract import get_tokenizer, tokenize_underspecified_input # commented out because seemingly not needed
-from transformers import *
-#from templates.lists import Lists
 from redubias.predict_topk import predict_answers
 import math
 import random

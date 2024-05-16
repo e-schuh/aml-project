@@ -8,102 +8,41 @@ TOP_LEVEL_DIR=$(dirname "$(dirname "$parent_path")")
 # Directory containing the data files
 DATA_DIR="${TOP_LEVEL_DIR}/data/refine_lm/training_data"
 
+
+
+## TOPK=8, EPOCHS=1 ##
 topk=8
 cat=gender
-
-model=swissbert_o_${cat}_tk${topk}
-
-
+epochs=1
+model=swissbert_o_${cat}_tk${topk}_ep${epochs}
 echo ">> Training model "${model}
+python3 -m training_bert --ppdata "${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl" --topk ${topk} --model_name ${model} --epochs ${epochs}
 
+
+## TOPK=20, EPOCHS=1 ##
+topk=20
+cat=gender
+epochs=1
+model=swissbert_o_${cat}_tk${topk}_ep${epochs}
+echo ">> Training model "${model}
+python3 -m training_bert --ppdata "${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl" --topk ${topk} --model_name ${model} --epochs ${epochs}
+
+
+## TOPK=8, EPOCHS=2 ##
+topk=8
+cat=gender
+epochs=2
+model=swissbert_o_${cat}_tk${topk}_ep${epochs}
+echo ">> Training model "${model}
 python3 -m training_bert --ppdata "${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl" --topk ${topk} --model_name ${model}
 
-# MODEL_PATH=saved_models/${model}
-# OUTPUT=data/output/${model}.output.json
-# LOG=./data/log/${model}.log.txt
 
-# echo ">> Predicting model "${model}
-
-# python3 -u -m lm.predict_bert --custom_model 1 --custom_model_path ${MODEL_PATH} --transformer_type bert-base-uncased --input slotmap_mixedgenderbert_occupationrev1_gendernoactlm_TEST.source.json --output ${OUTPUT} --topk ${topk} --batch_size 20
-
-# echo ">> Aggregating model "${model}
-
-# python3 analysis.py --metrics subj_bias,pos_err,attr_err,model --input ${OUTPUT} --group_by "gender_act" | tee ${LOG}
-
-# echo ">> Done"
-# ##########################
-
-# cat=ethnicity
-# #Bert Ethnicity
-# model=bert_o_${cat}_tk${topk}
-
-
-# echo ">> Training model "${model}
-
-# python3 -m training_bert --epochs 1 --mini_batch_size 10 --batch_size 10 --topk ${topk} --lr 5e-7 --output ${model} --ppdata data/slotmap_ethnicitybert_biasedethnicity_ethnicitynoactlm_TRAIN_LOOSE.pkl
-# MODEL_PATH=saved_models/${model}
-# OUTPUT=data/output/${model}_LOOSE.output.json
-# LOG=./data/log/${model}_LOOSE.log.txt
-
-# echo ">> Predicting model "${model}
-
-# python3 -u -m lm.predict_bert --custom_model 1 --custom_model_path ${MODEL_PATH} --transformer_type bert-base-uncased --input slotmap_ethnicitybert_biasedethnicity_ethnicitynoactlm_TEST_LOOSE.source.json --output ${OUTPUT} --topk ${topk} --batch_size 20
-
-# echo ">> Aggregating model "${model}
-
-# python3 analysis.py --cat ${model} --metrics subj_bias,pos_err,attr_err,model --input ${OUTPUT} --group_by "subj" | tee ${LOG}
-
-# echo ">> Done"
-
-# ##########################
-
-# cat=nationality
-# #Bert Nationality
-# model=bert_o_${cat}_tk${topk}
-
-
-# echo ">> Training model "${model}
-
-# python3 -m training_bert --epochs 1 --mini_batch_size 70 --batch_size 140 --topk ${topk} --lr 5e-9 --output ${model} --ppdata data/slotmap_countrybert_biasedcountry_countrynoactlm_TRAIN.pkl
-
-
-# MODEL_PATH=saved_models/${model}
-# OUTPUT=data/output/${model}.output.json
-# LOG=./data/log/${model}.log.txt
-
-# echo ">> Predicting model "${model}
-
-# python3 -u -m lm.predict_bert --custom_model 1 --custom_model_path ${MODEL_PATH} --transformer_type bert-base-uncased --input slotmap_countrybert_biasedcountry_countrynoactlm_TEST.source.json --output ${OUTPUT} --topk ${topk} --batch_size 20
-
-# echo ">> Aggregating model "${model}
-
-# python3 analysis.py --cat ${model} --metrics subj_bias,pos_err,attr_err,model --input ${OUTPUT} --group_by "subj" | tee ${LOG}
-
-# echo ">> Done"
-
-# ##########################
-# cat=religion
-# #Bert Religion
-
-# model=bert_o_${cat}_tk${topk}
-
-# echo ">> Training model "${model}
-
-# python3 -m training_bert --epochs 1 --mini_batch_size 20 --batch_size 20 --topk ${topk} --lr 5e-7 --output ${model} --ppdata data/slotmap_religionbert_biasedreligion_religionnoactlm_LOOSE_TRAIN.pkl
-
-
-# MODEL_PATH=saved_models/${model}
-# OUTPUT=data/output/${model}.output.json
-# LOG=./data/log/${model}.log.txt
-
-# echo ">> Predicting model "${model}
-
-# python3 -u -m lm.predict_bert --custom_model 1 --custom_model_path ${MODEL_PATH} --transformer_type bert-base-uncased --input slotmap_religionbert_biasedreligion_religionnoactlm_LOOSE_TEST.source.json --output ${OUTPUT} --topk ${topk} --batch_size 20
-
-# echo ">> Aggregating model "${model}
-
-# python3 analysis.py --cat ${model} --metrics subj_bias,pos_err,attr_err,model --input ${OUTPUT} --group_by "subj" | tee ${LOG}
-
-# echo ">> Done"
+## TOPK=20, EPOCHS=2 ##
+topk=20
+cat=gender
+epochs=2
+model=swissbert_o_${cat}_tk${topk}_ep${epochs}
+echo ">> Training model "${model}
+python3 -m training_bert --ppdata "${DATA_DIR}/slotmap_mixedgenderberttrain_occupationrev1_gendernoactlm.pkl" --topk ${topk} --model_name ${model}
 
 exit 0
