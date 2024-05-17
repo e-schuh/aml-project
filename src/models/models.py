@@ -17,7 +17,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 
 
 class BertForMLM(torch.nn.Module):
-    def __init__(self, pretrained_model_name, eraser_paths=None, *args, **kwargs):
+    def __init__(self, pretrained_model_name, language, eraser_paths=None, *args, **kwargs):
         super().__init__()
         self.model = self._get_new_Bert(pretrained_model_name).to(DEVICE)
         self.erasers = _load_erasers(eraser_paths)

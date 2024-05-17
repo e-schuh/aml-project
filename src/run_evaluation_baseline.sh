@@ -9,7 +9,7 @@ TOP_LEVEL_DIR=$(dirname "$parent_path")
 FILE_PATH_GT="${TOP_LEVEL_DIR}/data/df_intrasentence_de.pkl"
 
 # Output path
-OUTPUT_PATH="${TOP_LEVEL_DIR}/evaluation_output/eval_metrics_SwissBert_baseline_de.json"
+OUTPUT_PATH="${TOP_LEVEL_DIR}/evaluation_output/eval_metrics_baselines_de.json"
 
 # Loop over files in inference_output directory
 for file in ${TOP_LEVEL_DIR}/inference_output/combined_results*_baseline*; do
