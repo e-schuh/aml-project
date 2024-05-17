@@ -4,7 +4,6 @@ import os
 import torch
 
 
-#from transformers import *
 from redubias.calc_bias import Dataset, calculate_reward, collate_fn
 from model_BERT import CustomBERTModel
 import _pickle as pickle
@@ -34,8 +33,8 @@ def main():
     parser.add_argument('--intrasentence_model', help="Which intrasentence model to use", type=str, default = "SwissBertForMLM")
     parser.add_argument('--pretrained_model_name', help="Which intrasentence model to use", type=str, default = "ZurichNLP/swissbert-xlm-vocab")
     args = parser.parse_args()
-    # torch.cuda.set_device(args.device) # Googling it seems this doesn't work on CPU-only devices
     ppdata_path = args.ppdata
+
     ## Loading Pre-processed Data
 
     lists = Lists("word_lists", None)
@@ -103,13 +102,13 @@ def main():
                 step += 1
 
                 # Break out of training loop for development purposes
-                if step % 1==0:
-                    break
+                # if step % 1==0:
+                #     break
 
     stop = process_time()
     print("time elapsed: ", stop - start)
     #Save model
-    save_dir = os.path.join(TOP_LEVEL_DIR, "data/refine_lm/saved_models/tiny")
+    save_dir = os.path.join(TOP_LEVEL_DIR, "data/refine_lm/saved_models")
     os.makedirs(save_dir, exist_ok=True)
     save_path = f'{os.path.join(save_dir, model_name)}.pth'
     cfg = {
