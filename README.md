@@ -1,5 +1,5 @@
 ## Installation
-1. Clone the repository: `git clone https://github.com/katjahager/AML.git`
+1. Clone the repository: `git clone https://github.com/e-schuh/aml-project.git`
 2. Navigate into top-level directory and install the requirements: `cd AML && pip install -r requirements.txt`
 3. Install the project as editable package: `pip install -e .`
 
